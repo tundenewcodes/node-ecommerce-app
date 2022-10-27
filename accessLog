@@ -1,0 +1,1 @@
+::1 - - [27/Oct/2022:23:27:27 +0000] "GET /admin/products HTTP/1.1" 200 - "http://localhost:3500/admin/add-product" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"

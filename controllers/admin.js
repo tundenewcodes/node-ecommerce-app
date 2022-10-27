@@ -1,7 +1,8 @@
 const Product = require('../model/product')
+// const { uploadToCloudinary } = require('../service/uploadService')
+// const { bufferToDataURI } = require('../utils/file')
 
-
-const fileHelper = require('../utils/file');
+const { deleteFile } = require('../utils/file');
 const { validationResult } = require('express-validator/check')
 const addProductPage = (req, res) => {
     if (!req.session.isLoggedIn) {
@@ -47,7 +48,7 @@ const editProductPage = (req, res) => {
 
 
 
-const addProducts = (req, res) => {
+const addProducts = async (req, res) => {
     const title = req.body.title;
     const image = req.file;
     const price = req.body.price;
@@ -78,7 +79,7 @@ const addProducts = (req, res) => {
             hasError: true,
             product: {
                 title: title,
-                imageUrl: imageUrl,
+
                 price: price,
                 description: description
             },
@@ -86,13 +87,32 @@ const addProducts = (req, res) => {
             validationErrors: errors.array()
         });
     }
-    const imageUrl = req.file.path
+     const imageUrl = image.path
+     const imagename = image.originalname
+     const imagedest = image.destination
+     const mypath = `/${imagedest}/${imagename}`
+     console.log(image)
+     console.log(imageUrl)
+        const { file } = req
+    if (!file) {
+
+        console.log('no file')
+        return
+    }
+    // const fileFormat = file.mimetype.split('/')[1]
+    // const { base64 } = bufferToDataURI(fileFormat, file.buffer)
+    // const imageDetails = await uploadToCloudinary(base64, fileFormat)
+    // res.json({
+    //     status: 'success',
+    //     message: 'uploaded successully',
+    //     data: imageDetails
+    // })
     const product = new Product({
 
         title: title,
         price: price,
         description: description,
-        imageUrl: imageUrl,
+        imageUrl: req.file.path,
         userId: req.user
     });
     product
@@ -161,7 +181,7 @@ const saveEdittedProduct = (req, res) => {
             product.title = title;
             product.description = description;
             if (image) {
-                fileHelper.deleteFile(product.imageUrl);
+                deleteFile(product.imageUrl);
                 product.imageUrl = image.path;
             }
             product.price = price;
@@ -202,5 +222,4 @@ const deleteProduct = (req, res, next) => {
 }
 
 
-module.exports = { deleteProduct, addProductPage, editProductPage, saveEdittedProduct, addProducts, adminProducts }
 module.exports = { deleteProduct, addProductPage, editProductPage, saveEdittedProduct, addProducts, adminProducts }

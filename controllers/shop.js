@@ -18,7 +18,7 @@ const index = (req, res) => {
       })
       .then((products) => {
         res.render('shop/index', {
-          prods: products,
+          products: products,
           pageTitle: 'Shop',
           path: '/',
           currentPage: page,
@@ -48,7 +48,7 @@ const getProducts = (req, res) => {
       })
       .then((products) => {
         res.render('shop/product-list', {
-          prods: products,
+          products: products,
           pageTitle: 'Products',
           path: '/products',
           currentPage: page,
@@ -224,6 +224,32 @@ Order.findById(orderId)
 
 }
 
+const getCheckout = (req, res, next) => {
+  req.user
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
+      const products = user.cart.items;
+      let total = 0;
+      products.forEach(p => {
+        total += p.quantity * p.productId.price;
+      });
+      res.render('shop/checkout', {
+        path: '/checkout',
+        pageTitle: 'Checkout',
+        products: products,
+        totalSum: total
+      });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+
+
 module.exports = {
     getProducts,
     index,
@@ -233,5 +259,5 @@ getInvoice,
     getOrders,
     getAProduct,
     deleteCartProduct,
-    postOrder
+    postOrder, getCheckout
 }
